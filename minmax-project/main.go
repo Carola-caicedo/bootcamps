@@ -9,19 +9,19 @@ import (
 )
 
 func main() {
-	// valor mínimo
+	// Preguntar valor mínimo
 	fmt.Print("Ingrese el valor mínimo: ")
 	min, err := strconv.ParseFloat(getInput(), 64)
 	if err != nil {
-		fmt.Println("Error: Valor mínimo inválido")
+		fmt.Println("Error: Valor mínimo incorrecto")
 		return
 	}
 
-	// valor máximo
+	// Preguntar valor máximo
 	fmt.Print("Ingrese el valor máximo: ")
 	max, err := strconv.ParseFloat(getInput(), 64)
 	if err != nil {
-		fmt.Println("Error: Valor máximo inválido")
+		fmt.Println("Error: Valor máximo incorrecto")
 		return
 	}
 
@@ -47,7 +47,7 @@ func main() {
 	resultado := minmax(min, max, values...)
 
 	// Mostrar el resultado
-	fmt.Printf("Valores en el rango: %v\n", resultado)
+	fmt.Printf("Los valores dentro del rango son: %v\n", resultado)
 }
 
 func minmax(min, max float64, values ...float64) []float64 {
