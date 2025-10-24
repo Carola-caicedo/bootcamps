@@ -13,14 +13,12 @@ func main() {
 	//Ontain user data
 	minSrt, maxSrt, valuesStr := getInput()
 
-
 	//convert to minimum
 	min, err := strconv.ParseFloat(minSrt, 64)
 	if err != nil {
 		fmt.Println("Error: Invalid minimum value")
 		return
 	}
-
 
 	// convert to maximum
 	max, err := strconv.ParseFloat(maxSrt, 64)
