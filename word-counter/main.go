@@ -17,9 +17,8 @@ func main() {
 		}
 	}
 
-scanner := bufio.NewScanner(os.Stdin)
-total := 0
-
+	scanner := bufio.NewScanner(os.Stdin)
+	total := 0
 
 	if countLines {
 		fmt.Println("Write your text (Counting Lines):")
@@ -27,23 +26,21 @@ total := 0
 		fmt.Println("Write your text (Counting Words):")
 	}
 
-for scanner.Scan() {
+	for scanner.Scan() {
 		line := scanner.Text()
 
-		if strings.TrimSpace(line) == "Exit" {
+		if strings.ToLower(strings.TrimSpace(line)) == "exit" {
 			break
 		}
 
+		if countLines {
+			total++
 
-	if countLines {
-		total++
-
-	} else {
-		words := strings.Fields(line)
-		total += len(words)
+		} else {
+			words := strings.Fields(line)
+			total += len(words)
+		}
 	}
-}
-
 
 	if countLines {
 
