@@ -9,59 +9,61 @@ import (
 )
 
 func main() {
-	// valor mínimo
-	fmt.Print("Ingrese el valor mínimo: ")
-	min, err := strconv.ParseFloat(getInput(), 64)
+
+	//Obtain user data
+	minSrt:= getInput("Enter minimum values: ")
+	maxSrt:= getInput("Enter maximum values: ")
+	valuesStr:= getInput("Enter values (separated by spaces): ")
+
+	//convert to minimum
+	min, err := strconv.ParseFloat(minSrt, 64)
 	if err != nil {
-		fmt.Println("Error: Valor mínimo inválido")
+		fmt.Println("Error: Invalid minimum value")
 		return
 	}
 
-	// valor máximo
-	fmt.Print("Ingrese el valor máximo: ")
-	max, err := strconv.ParseFloat(getInput(), 64)
+	// convert to maximum
+	max, err := strconv.ParseFloat(maxSrt, 64)
 	if err != nil {
-		fmt.Println("Error: Valor máximo inválido")
+		fmt.Println("Error: Invalid maximum value")
 		return
 	}
 
-	// Verificar que el mínimo sea menor que el máximo
+	// Verify that minimum value is less than maximum value
 	if min >= max {
-		fmt.Println("Error: El mínimo debe ser menor que el máximo")
+		fmt.Println("Error: Minimum value must be less than maximum value")
 		return
 	}
 
-	// Obtener la lista de valores
-	fmt.Print("Ingrese la lista de valores (separados por espacios): ")
-	valuesInput := getInput()
-
-	// Convertir la entrada en números
+	// Convert values to float64
 	var values []float64
-	for _, str := range strings.Fields(valuesInput) {
+	for _, str := range strings.Fields(valuesStr) {
 		if num, err := strconv.ParseFloat(str, 64); err == nil {
 			values = append(values, num)
 		}
 	}
 
-	// Filtrar los valores dentro del rango
-	resultado := minmax(min, max, values...)
+	// Filter values within the range
+	result := minmax(min, max, values...)
 
-	// Mostrar el resultado
-	fmt.Printf("Valores en el rango: %v\n", resultado)
+	// Show the result
+	fmt.Printf("List of values within the range (%v, %v): %v\n", min, max, result)
 }
 
 func minmax(min, max float64, values ...float64) []float64 {
-	var dentroRango []float64
-	for _, valor := range values {
-		if valor >= min && valor <= max {
-			dentroRango = append(dentroRango, valor)
+	var insideRange []float64
+	for _, value := range values {
+		if value >= min && value <= max {
+			insideRange = append(insideRange, value)
 		}
 	}
-	return dentroRango
+	return insideRange
 }
 
-func getInput() string {
+func getInput(prompt string) string {
 	scanner := bufio.NewScanner(os.Stdin)
+
+	fmt.Print(prompt)
 	scanner.Scan()
 	return strings.TrimSpace(scanner.Text())
 }
