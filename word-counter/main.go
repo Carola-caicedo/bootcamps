@@ -7,6 +7,30 @@ import (
 	"strings"
 )
 
+//function that performs the counting process
+func countString(input string, countLines bool) int {
+	scanner := bufio.NewScanner(strings.NewReader(input))
+	total := 0
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if strings.EqualFold(strings.TrimSpace(line), "exit") {
+			break
+		}
+
+		if countLines {
+			total++
+		} else {
+			words := strings.Fields(line)
+			total += len(words)
+		}
+	}
+	return total
+}
+
+
+//main function
 func main() {
 
 	countLines := false
@@ -18,7 +42,7 @@ func main() {
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
-	total := 0
+	var input strings.Builder
 
 	if countLines {
 		fmt.Println("Write your text (Counting Lines):")
@@ -29,18 +53,16 @@ func main() {
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		if strings.ToLower(strings.TrimSpace(line)) == "exit" {
+		if strings.EqualFold(strings.TrimSpace(line), "exit") {
 			break
 		}
 
-		if countLines {
-			total++
+		input.WriteString(line + "\n")
 
-		} else {
-			words := strings.Fields(line)
-			total += len(words)
-		}
 	}
+
+	// Call the counting function
+	total := countString(input.String(), countLines)
 
 	if countLines {
 
