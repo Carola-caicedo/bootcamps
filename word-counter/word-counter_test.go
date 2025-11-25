@@ -1,6 +1,8 @@
 package main
 
-import "testing"
+import (
+	"testing"
+)
 
 // function to count words with different conditions
 func TestCountString_Words(t *testing.T) {
@@ -12,48 +14,19 @@ func TestCountString_Words(t *testing.T) {
 		expected int
 	}{
 
-		{
-			name:     "single sentence with words.",
-			input:    "A single sentence with a few words.",
-			expected: 7,
-		},
+		{"TestSingleSentence","A single sentence with a few words.",7,},
 
-		{
-			name: "multiple sentences with some words ",
-			input: `This is a line of text.
-				Start a line break here.`,
-			expected: 11, //11?
-		},
+		{"TestMultipleSentences","This is a line of text.\n\t\t\tStart a line break here.",11,},
 
-		{
-			name:     "single word.",
-			input:    "hello",
-			expected: 1,
-		},
+		{"TestSingleWord","hello",1,},
 
-		{
-			name:     "single composed word.",
-			input:    "read-only",
-			expected: 1,
-		},
+		{"TestSingleComposedWord","read-only",1,},
 
-		{
-			name:     "multiple break lines.",
-			input:    "This is a line of text.\n\nStart a line break here.",
-			expected: 11, //11?
-		},
+		{"TestMultipleBreakLines","This is a line of text.\n\nStart a line break here.",11,},
 
-		{
-			name:     "types (Exit), (exit) or (EXIT).",
-			input:    "that the program uses for output, Exit, exit, EXIT.",
-			expected: 9,
-		},
+		{"TestExitVarations","that the program uses for output, Exit, exit, EXIT.",9,},
 
-		{
-			name:     "Empty input.",
-			input:    "",
-			expected: 0,
-		},
+		{"TestEmptyInput","",0,},
 	}
 
 	//that yields the expected result
@@ -76,29 +49,13 @@ func TestCountString_Lines(t *testing.T) {
 		input    string
 		expected int
 	}{
-		{
-			name:     "Single Line.",
-			input:    "Hello world, this is a single line of text.",
-			expected: 1,
-		},
+		{"TestSingleLine","Hello world, this is a single line of text.",1,},
 
-		{
-			name:     "Multiple Lines.",
-			input:    "This is a line of text.\nStart a line break here.",
-			expected: 2,
-		},
+		{"TestMultipleLines","This is a line of text.\nStart a line break here.",2,},
 
-		{
-			name:     "Multiple lines with breaks.",
-			input:    "This is a line of text.\n\nStart a line break here.",
-			expected: 3,
-		},
+		{"TestMultipleLinesWithBreaks","This is a line of text.\n\nStart a line break here.",3,},
 
-		{
-			name:     "Empty input",
-			input:    "",
-			expected: 0,
-		},
+		{"TestEmptyInput","",0,},
 	}
 
 	//that yields the expected result
