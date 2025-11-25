@@ -15,17 +15,11 @@ func TestCountString_Words(t *testing.T) {
 	}{
 
 		{"TestSingleSentence","A single sentence with a few words.",7,},
-
 		{"TestMultipleSentences","This is a line of text.\n\t\t\tStart a line break here.",11,},
-
 		{"TestSingleWord","hello",1,},
-
 		{"TestSingleComposedWord","read-only",1,},
-
 		{"TestMultipleBreakLines","This is a line of text.\n\nStart a line break here.",11,},
-
 		{"TestExitVarations","that the program uses for output, Exit, exit, EXIT.",9,},
-
 		{"TestEmptyInput","",0,},
 	}
 
@@ -50,11 +44,8 @@ func TestCountString_Lines(t *testing.T) {
 		expected int
 	}{
 		{"TestSingleLine","Hello world, this is a single line of text.",1,},
-
 		{"TestMultipleLines","This is a line of text.\nStart a line break here.",2,},
-
 		{"TestMultipleLinesWithBreaks","This is a line of text.\n\nStart a line break here.",3,},
-
 		{"TestEmptyInput","",0,},
 	}
 
