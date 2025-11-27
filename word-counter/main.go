@@ -113,4 +113,5 @@ func main() {
 	default:
 		fmt.Printf("Words: %d\n ", total)
 	}
+
 }

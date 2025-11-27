@@ -100,7 +100,7 @@ func TestCountString_Bytes(t *testing.T) {
 // Test aditional verufy priority countLines > countBytes > countWords
 func TestCountString_Priority(t *testing.T) {
 	//What is the input/data to be tested
-	input := "Line 1\nLine 2\nLine 3\n"
+	input := "Line1\nLine2\nLine3\n"
 
 	//When same flags are true, countLines should take priority
 	result := countString(input, true, true)
