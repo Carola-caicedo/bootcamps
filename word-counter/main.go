@@ -12,45 +12,53 @@ import (
 func countString(input string, countLines bool, countBytes bool) int {
 
 	if countLines {
-
-		// Count the number of lines
-		scanner := bufio.NewScanner(strings.NewReader(input))
-		total := 0
-
-		for scanner.Scan() {
-			line := scanner.Text()
-
-			if strings.EqualFold(strings.TrimSpace(line), "exit") {
-				break
-			}
-
-			total++
-		}
-
-		return total
+		// Count the number of Lines
+		return countLinesFunc(input)
 	} else if countBytes {
 		// Count the number of bytes
 		return len([]byte(input))
-
 	} else {
+		// Count the number of words
+		return countWordsFunc(input)
+	}
+}
+
+func countLinesFunc(input string) int {
+	// Count the number of lines
+	scanner := bufio.NewScanner(strings.NewReader(input))
+	total := 0
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// Check if the line is the exit command
+		if strings.EqualFold(strings.TrimSpace(line), "exit") {
+			break
+		}
+		// Count the number of Lines
+		total++
+	}
+	return total
+}
+
+func countWordsFunc(input string) int {
+	// Count the number of words
+	scanner := bufio.NewScanner(strings.NewReader(input))
+	total := 0
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// Check if the line is the exit command
+		if strings.EqualFold(strings.TrimSpace(line), "exit") {
+			break
+		}
 
 		// Count the number of words
-		scanner := bufio.NewScanner(strings.NewReader(input))
-		total := 0
-		for scanner.Scan() {
-			line := scanner.Text()
-
-			if strings.EqualFold(strings.TrimSpace(line), "exit") {
-
-				break
-			}
-
-			words := strings.Fields(line)
-			total += len(words)
-		}
-		return total
+		words := strings.Fields(line)
+		total += len(words)
 	}
-
+	return total
 }
 
 // main function
@@ -64,13 +72,13 @@ func main() {
 	//countWords (default)
 
 	//Show status before parsing
-	fmt.Printf("Before parsing - Lines: %t, Bytes: %t\n", *countLines, *countBytes)
+	// fmt.Printf("Before parsing - Lines: %t, Bytes: %t\n", *countLines, *countBytes)
 
 	// Parse the command line flags
 	flag.Parse()
 
 	// Show status after parsing
-	fmt.Printf("After parsing - Lines: %t, Bytes: %t\n", *countLines, *countBytes)
+	// fmt.Printf("After parsing - Lines: %t, Bytes: %t\n", *countLines, *countBytes)
 
 	// Define the mode of counting
 	var mode string
@@ -85,11 +93,10 @@ func main() {
 
 	// Print the mode of counting
 	fmt.Printf("The program will count %s.\n", mode)
+	fmt.Printf("Write your text 'exit' to finish (Counting %s):", mode)
 
 	scanner := bufio.NewScanner(os.Stdin)
 	var input strings.Builder
-
-	fmt.Printf("Write your text (Counting %s):", mode)
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -102,7 +109,7 @@ func main() {
 
 	}
 
-	// Call the counting function
+	// call the counting function
 	total := countString(input.String(), *countLines, *countBytes)
 
 	switch mode {
