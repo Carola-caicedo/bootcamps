@@ -8,57 +8,64 @@ import (
 	"strings"
 )
 
+// func that reads user input
+func readInput() string {
+	scanner := bufio.NewScanner(os.Stdin)
+	var input strings.Builder
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// Check if the line is the exit command
+		if strings.EqualFold(strings.TrimSpace(line), "exit") {
+			break
+		}
+
+		input.WriteString(line + "\n")
+
+	}
+
+	return input.String()
+
+}
+
 // function that performs the counting process
 func countString(input string, countLines bool, countBytes bool) int {
 
+	// Check if the line is the exit command
+	if strings.EqualFold(strings.TrimSpace(input), "exit") {
+		return 0
+	}
+
+	//Priority
 	if countLines {
 		// Count the number of Lines
-		return countLinesFunc(input)
-	} else if countBytes {
-		// Count the number of bytes
+		scanner := bufio.NewScanner(strings.NewReader(input))
+		total := 0
+
+		for scanner.Scan() {
+			scanner.Text()
+			total++
+		}
+
+		return total
+	}
+
+	if countBytes {
+		// Count the number of Bytes
 		return len([]byte(input))
-	} else {
-		// Count the number of words
-		return countWordsFunc(input)
 	}
-}
 
-func countLinesFunc(input string) int {
-	// Count the number of lines
+	// Count words by default
 	scanner := bufio.NewScanner(strings.NewReader(input))
 	total := 0
-
 	for scanner.Scan() {
 		line := scanner.Text()
-
-		// Check if the line is the exit command
-		if strings.EqualFold(strings.TrimSpace(line), "exit") {
-			break
-		}
-		// Count the number of Lines
-		total++
-	}
-	return total
-}
-
-func countWordsFunc(input string) int {
-	// Count the number of words
-	scanner := bufio.NewScanner(strings.NewReader(input))
-	total := 0
-
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		// Check if the line is the exit command
-		if strings.EqualFold(strings.TrimSpace(line), "exit") {
-			break
-		}
-
-		// Count the number of words
 		words := strings.Fields(line)
 		total += len(words)
 	}
 	return total
+
 }
 
 // main function
@@ -95,22 +102,11 @@ func main() {
 	fmt.Printf("The program will count %s.\n", mode)
 	fmt.Printf("Write your text 'exit' to finish (Counting %s):", mode)
 
-	scanner := bufio.NewScanner(os.Stdin)
-	var input strings.Builder
-
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		if strings.EqualFold(strings.TrimSpace(line), "exit") {
-			break
-		}
-
-		input.WriteString(line + "\n")
-
-	}
+	// read user input
+	input := readInput()
 
 	// call the counting function
-	total := countString(input.String(), *countLines, *countBytes)
+	total := countString(input, *countLines, *countBytes)
 
 	switch mode {
 	case "lines":
