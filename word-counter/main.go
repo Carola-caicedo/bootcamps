@@ -2,52 +2,119 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"strings"
 )
 
-func main() {
-
-	countLines := false
-
-	if len(os.Args) > 1 {
-		if os.Args[1] == "-l" {
-			countLines = true
-		}
-	}
-
+// func that reads user input
+func readInput() string {
 	scanner := bufio.NewScanner(os.Stdin)
-	total := 0
-
-	if countLines {
-		fmt.Println("Write your text (Counting Lines):")
-	} else {
-		fmt.Println("Write your text (Counting Words):")
-	}
+	var input strings.Builder
 
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		if strings.ToLower(strings.TrimSpace(line)) == "exit" {
+		// Check if the line is the exit command
+		if strings.EqualFold(strings.TrimSpace(line), "exit") {
 			break
 		}
 
-		if countLines {
-			total++
+		input.WriteString(line + "\n")
 
-		} else {
-			words := strings.Fields(line)
-			total += len(words)
-		}
 	}
 
+	return input.String()
+
+}
+
+// function that performs the counting process
+func countString(input string, countLines bool, countBytes bool) int {
+
+	// Check if the line is the exit command
+	if strings.EqualFold(strings.TrimSpace(input), "exit") {
+		return 0
+	}
+
+	//Priority
 	if countLines {
+		// Count the number of Lines
+		scanner := bufio.NewScanner(strings.NewReader(input))
+		total := 0
 
-		fmt.Printf("Lines: %d\n ", total)
+		for scanner.Scan() {
+			scanner.Text()
+			total++
+		}
 
-	} else {
-		fmt.Printf("Words: %d\n ", total)
-
+		return total
 	}
+
+	if countBytes {
+		// Count the number of Bytes
+		return len([]byte(input))
+	}
+
+	// Count words by default
+	scanner := bufio.NewScanner(strings.NewReader(input))
+	total := 0
+	for scanner.Scan() {
+		line := scanner.Text()
+		words := strings.Fields(line)
+		total += len(words)
+	}
+	return total
+
+}
+
+// main function
+func main() {
+
+	// Define flags
+	//countLines
+	countLines := flag.Bool("l", false, "Count lines")
+	//countBytes
+	countBytes := flag.Bool("b", false, "Count bytes")
+	//countWords (default)
+
+	//Show status before parsing
+	// fmt.Printf("Before parsing - Lines: %t, Bytes: %t\n", *countLines, *countBytes)
+
+	// Parse the command line flags
+	flag.Parse()
+
+	// Show status after parsing
+	// fmt.Printf("After parsing - Lines: %t, Bytes: %t\n", *countLines, *countBytes)
+
+	// Define the mode of counting
+	var mode string
+
+	if *countLines {
+		mode = "lines"
+	} else if *countBytes {
+		mode = "bytes"
+	} else {
+		mode = "words"
+	}
+
+	// Print the mode of counting
+	fmt.Printf("The program will count %s.\n", mode)
+	fmt.Printf("Write your text 'exit' to finish (Counting %s):", mode)
+
+	// read user input
+	input := readInput()
+
+	// call the counting function
+	total := countString(input, *countLines, *countBytes)
+
+	switch mode {
+	case "lines":
+		fmt.Printf("Lines: %d\n ", total)
+	case "bytes":
+		fmt.Printf("bytes: %d\n ", total)
+	default:
+		fmt.Printf("Words: %d\n ", total)
+	}
+
 }
