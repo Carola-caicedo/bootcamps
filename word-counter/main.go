@@ -12,7 +12,6 @@ import (
 func readInput() string {
 	scanner := bufio.NewScanner(os.Stdin)
 	var input strings.Builder
-
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -20,16 +19,14 @@ func readInput() string {
 		if strings.EqualFold(strings.TrimSpace(line), "exit") {
 			break
 		}
-
 		input.WriteString(line + "\n")
 
 	}
-
 	return input.String()
 
 }
 
-// function that performs the counting process
+// function that does the counting
 func countString(input string, countLines bool, countBytes bool) int {
 
 	// Check if the line is the exit command
@@ -81,7 +78,7 @@ func main() {
 	//Show status before parsing
 	// fmt.Printf("Before parsing - Lines: %t, Bytes: %t\n", *countLines, *countBytes)
 
-	// Parse the command line flags
+	// processes the flags arguments in line
 	flag.Parse()
 
 	// Show status after parsing
