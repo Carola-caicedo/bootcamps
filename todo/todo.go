@@ -29,7 +29,7 @@ func (l *List) Add(task string) {
 		CompletedAt: time.Time{}, //empty time
 	}
 
-	//append the new task to the list
+	//add the new task to the list
 	*l = append(*l, t)
 }
 
@@ -43,7 +43,7 @@ func (l *List) Complete(i int) error {
 		return errors.New("invalid index")
 	}
 
-	//set the task as completed
+	//mark the task as completed
 	ls[i].Done = true
 	ls[i].CompletedAt = time.Now()
 
@@ -76,9 +76,14 @@ func (l *List) Save(filename string) error {
 		return err
 	}
 
-	// Write the JSON data to file
-	return os.WriteFile(filename, jsonData, 0644)
+	// Write the data to file (JSON)
+	err = os.WriteFile(filename, jsonData, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
 }
+
 
 // Get method reads the list from a JSON file
 // filename: name of the file to read
@@ -100,6 +105,10 @@ func (l *List) Get(filename string) error {
 		return errors.New("file is empty")
 	}
 
-	// Unmarshal the JSON data
-	return json.Unmarshal(file, l)
+	// Unmarshal (to read and receive) the JSON data
+	err = json.Unmarshal(file, l)
+	if err != nil {
+		return err
+	}
+	return nil
 }
