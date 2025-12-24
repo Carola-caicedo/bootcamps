@@ -9,12 +9,8 @@ import (
 func TestSaveAndGet(t *testing.T) {
 
 	// Create a temporary file empty
-	// "" is the directory temporary
-	// "todo_test*.json" is the name of the file
 	tempFile, err := os.CreateTemp("", "todo_test*.json")
-	// If the file cannot be created, returned an error
 	if err != nil {
-		// If the error is not nil, log the error and exit the program
 		t.Errorf("Cannot create file temp: %v", err)
 	}
 	// Defer postpone the deletion of the file
@@ -60,7 +56,6 @@ func TestSaveAndGet(t *testing.T) {
 
 		// If the done is different, log the error and exit the program and concatenates the variables the condition
 		if list1[i].Done != list2[i].Done {
-			// If there an error, log the error and exit the program
 			t.Errorf("The tasks are different, saved done: %v and loaded done: %v", list1[i].Done, list2[i].Done)
 		}
 
@@ -71,12 +66,8 @@ func TestSaveAndGet(t *testing.T) {
 func TestGetEmptyFile(t *testing.T) {
 
 	// Create a temporary file empty
-	// "" is the directory temporary
-	// "todo_empty_test_*.json" is the name of the file
 	tempFile, err := os.CreateTemp("", "todo_empty_test_*.json")
-	// If the file cannot be created, returned an error
 	if err != nil {
-		// If the error is not nil, log the error and exit the program
 		t.Errorf("Cannot create file temp: %v", err)
 	}
 
@@ -89,8 +80,6 @@ func TestGetEmptyFile(t *testing.T) {
 	list := List{}
 	// It should return an error for the empty file.
 	err = list.Get(tempFile.Name())
-
-	// If the error is nil, log the error and exit the program
 	if err == nil {
 		t.Error("The file is empty, but the error is nil")
 	}
