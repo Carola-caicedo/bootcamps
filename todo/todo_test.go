@@ -2,6 +2,7 @@ package todo
 
 import (
 	"testing"
+	"time"
 )
 
 func TestAdd(t *testing.T) {
@@ -121,4 +122,30 @@ func TestDelete(t *testing.T) {
 		t.Error("Should return an error with invalid index")
 	}
 
+}
+
+func TestString(t *testing.T) {
+
+	list := List{
+		{
+			Task:        "Pay Books",
+			Done:        true,
+			CreatedAt:   time.Now(),
+			CompletedAt: time.Time{},
+		},
+
+		{
+			Task:        "Read Books",
+			Done:        false,
+			CreatedAt:   time.Now(),
+			CompletedAt: time.Time{},
+		},
+	}
+
+	expected := "[X] 0: Pay Books\n[ ] 1: Read Books"
+	result := list.String()
+
+	if result != expected {
+		t.Errorf("String() = %q, want %q", result, expected)
+	}
 }

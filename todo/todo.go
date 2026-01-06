@@ -3,7 +3,9 @@ package todo
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -18,15 +20,43 @@ type item struct {
 // List type private
 type List []item
 
+func (l *List) String() string {
+
+	if len(*l) == 0 {
+		return ""
+	}
+
+	var result strings.Builder
+
+	for i, t := range *l {
+
+		status := "[ ]"
+		if t.Done {
+			status = "[X]"
+		}
+
+		line := fmt.Sprintf("%s %d: %s", status, i, t.Task)
+		result.WriteString(line)
+
+		if i < len(*l)-1 {
+			result.WriteString("\n")
+		}
+
+	}
+	return result.String()
+}
+
 // Add function create a new task
 // (*) modify the original list (not the copy)
 // (Not error) always works
 func (l *List) Add(task string) {
 	t := item{
-		Task:        task,
-		Done:        false,
-		CreatedAt:   time.Now(),  //current time
-		CompletedAt: time.Time{}, //empty time
+		Task: task,
+		Done: false,
+		//current time
+		CreatedAt: time.Now(),
+		//empty time
+		CompletedAt: time.Time{},
 	}
 
 	//add the new task to the list
@@ -83,7 +113,6 @@ func (l *List) Save(filename string) error {
 	}
 	return nil
 }
-
 
 // Get method reads the list from a JSON file
 // filename: name of the file to read
