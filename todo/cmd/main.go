@@ -25,6 +25,10 @@ func main() {
 
 	// File for save the tasks
 	filename := ".todo.json"
+	// enviroment variable
+	if envFile := os.Getenv("TODO_FILENAME"); envFile != "" {
+		filename = envFile
+	}
 
 	// Load existing tasks
 	// If the file not exists or empty, start with empty list
