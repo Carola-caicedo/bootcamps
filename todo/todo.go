@@ -23,7 +23,7 @@ type List []item
 func (l *List) String() string {
 
 	if len(*l) == 0 {
-		return ""
+		return "There are no tasks in the list."
 	}
 
 	var result strings.Builder

@@ -41,12 +41,7 @@ func main() {
 	// priority for flags
 	if *listFlag {
 		// List all task, but now with String method
-		output := l.String()
-		if output == "" {
-			fmt.Println("There are no task in ths list")
-		} else {
-			fmt.Print(output)
-		}
+		fmt.Print(l)
 		return
 	}
 

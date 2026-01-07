@@ -15,6 +15,11 @@ var (
 	fileName = ".todo.json"
 )
 
+func cleanFile() error {
+	os.Remove(fileName)
+	return os.WriteFile(fileName, []byte{}, 0644)
+}
+
 func TestMain(m *testing.M) {
 	fmt.Println("Building tool...")
 
@@ -52,12 +57,6 @@ func TestTodoCLI(t *testing.T) {
 	}
 
 	cmdPath := filepath.Join(dir, binName)
-
-	//clean file before test
-	cleanFile := func() {
-		os.Remove(fileName)
-		os.WriteFile(fileName, []byte{}, 0644)
-	}
 
 	t.Run("AddNewTask", func(t *testing.T) {
 
