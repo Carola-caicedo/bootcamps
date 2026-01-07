@@ -40,23 +40,8 @@ func main() {
 
 	// priority for flags
 	if *listFlag {
-		// List incomplete tasks
-		incompleteCount := 0
-		for _, item := range *l {
-			if !item.Done {
-				// Format the time
-				completedAt := item.CompletedAt.Format("2006-01-02 15:04:05")
-				createdAt := item.CreatedAt.Format("2006-01-02 15:04:05")
-				// Message according to the assignment
-				fmt.Printf("Title: %s, Done: %t, CreatedAt: %s, CompletedAt: %s\n", item.Task, item.Done, createdAt, completedAt)
-				// Count the number of incomplete tasks
-				incompleteCount++
-			}
-		}
-		// If there are no incomplete tasks, show a message
-		if incompleteCount == 0 {
-			fmt.Println("No incomplete tasks.")
-		}
+		// List all task, but now with String method
+		fmt.Print(l)
 		return
 	}
 
