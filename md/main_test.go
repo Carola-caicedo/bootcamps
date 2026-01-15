@@ -3,40 +3,54 @@ package main
 import (
 	"os"
 	"testing"
+	"bytes"
 )
 
 func TestRun(t *testing.T) {
 
-	// Test with a valid filename
-	t.Run("ValidFile", func(t *testing.T) {
-		// temporary file
-		testFile := "test.html"
-
-		err := run(testFile)
-		if err != nil {
-			t.Fatalf("run() failed: %v", err)
-		}
-
-		// Check if the file created
-		expectedFilename := testFile + ".html"
-		if _, err := os.Stat(expectedFilename); os.IsNotExist(err) {
-			t.Errorf("The file %s doesn't exits", expectedFilename)
-		}
-		// Clean
-		os.Remove(expectedFilename)
-	})
-
-	// Test with an empty filename
-	t.Run("EmptyFile", func(t *testing.T) {
-		err := run("")
+	t.Run("ErrWithoutIn", func(t *testing.T) {
+		err := run("", "")
 		if err == nil {
-			t.Error("Expected an error for empty filename")
+			t.Error("expected error, when -in is not specified")
 		}
-
-		expectedError := "the flag (-out) is obligatory "
-		if err != nil && err.Error() != expectedError {
-			t.Errorf("Failed: expected %q, got %q", expectedError, err)
-		}
-
 	})
+		// file created
+		t.Run ("FileCreated", func(t *testing.T) {
+			os.WriteFile("README.md", []byte("# test"), 0644)
+			defer os.Remove("README.md")
+
+			err := run("README.md", "result")
+			if err != nil {
+				t.Fatalf("run() failed: %v", err)
+			}
+
+
+			if _, err := os.Stat("result.html"); os.IsNotExist(err) {
+				t.Errorf("The file result.html was not created")
+			} else {
+			// Clean
+			os.Remove("result.html")
+			}
+		})
+}
+
+func TestParseContent(t *testing.T){
+	mdBytes, err := os.ReadFile("README.md")
+	if err != nil {
+		t.Fatalf("Error reading file: %v", err)
+	}
+
+	result, err := parseContent(mdBytes)
+	if err != nil {
+		t.Fatalf("Error parsing content: %v", err)
+	}
+
+	goldenBytes, err := os.ReadFile("test_golden.html")
+	if err != nil {
+		t.Fatalf("Error reading golden file: %v", err)
+	}
+
+	if !bytes.Equal(result, goldenBytes){
+		t.Error("The result does not match withthe golden file")
+	}
 }

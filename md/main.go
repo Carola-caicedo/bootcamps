@@ -4,6 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
+
+	"github.com/microcosm-cc/bluemonday"
+	"github.com/russross/blackfriday/v2"
 )
 
 const header = `<!DOCTYPE html>
@@ -22,26 +26,53 @@ const footer = `
 
 func main() {
 	// define flag
+	inflag := flag.String("in", "", "Markdown filename")
 	outflag := flag.String("out", "", "HTML filename")
 	flag.Parse()
 
-	if err := run(*outflag); err != nil {
+	if err := run(*inflag, *outflag); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v", err)
 		os.Exit(1)
 	}
 }
 
-func run(out string) error {
+func run(in, out string) error {
 	// Check obligatory flag
-	if out == "" {
-		return fmt.Errorf("the flag (-out) is obligatory ")
+	if in == "" {
+		return fmt.Errorf("the flag (-in) is obligatory")
 	}
 
-	filename := out + ".html"
+	input, err := os.ReadFile(in)
+	if err != nil {
+		return fmt.Errorf("cannot read the file: %v", err)
+	}
 
-	content := []byte(header + footer)
+	body, err := parseContent(input)
+	if err != nil {
+		return err
+	}
+
+	var filename string
+	if out != "" {
+		filename = out + ".html"
+	} else {
+		base := filepath.Base(in)
+		ext := filepath.Ext(base)
+		name := base[:len(base)-len(ext)]
+		filename = name + ".html"
+	}
+
+	content := []byte(header + string(body) + footer)
 
 	return saveHTML(filename, content)
+}
+
+func parseContent(input []byte) ([]byte, error) {
+
+	output := blackfriday.Run(input, blackfriday.WithExtensions(blackfriday.CommonExtensions))
+	safeHTML := bluemonday.UGCPolicy().SanitizeBytes(output)
+	return safeHTML, nil
+
 }
 
 func saveHTML(filename string, data []byte) error {
