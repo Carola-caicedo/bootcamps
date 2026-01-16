@@ -104,15 +104,15 @@ Just a test
 		return bytes.TrimSpace(data)
 	}
 
-	// Comparar
+	// Compare
 	if !bytes.Equal(normalize(generatedHTML), normalize(goldenHTML)) {
 		t.Error("Generated HTML does not match golden file")
 
-		// Opcional: imprimir ambos para debugging
+		// print both for debugging
 		t.Logf("Generated (%d bytes):\n%s", len(generatedHTML), generatedHTML)
 		t.Logf("Golden (%d bytes):\n%s", len(goldenHTML), goldenHTML)
 
-		// También mostrar las longitudes de los normalizados
+		// Show the lengths
 		t.Logf("Normalized generated: %d bytes", len(normalize(generatedHTML)))
 		t.Logf("Normalized golden: %d bytes", len(normalize(goldenHTML)))
 	}
