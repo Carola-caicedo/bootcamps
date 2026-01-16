@@ -68,12 +68,11 @@ func run(in, out string) error {
 }
 
 func parseContent(input []byte) ([]byte, error) {
-
-	output := blackfriday.Run(input, blackfriday.WithExtensions(blackfriday.CommonExtensions))
-	safeHTML := bluemonday.UGCPolicy().SanitizeBytes(output)
-	return safeHTML, nil
-
+    output := blackfriday.Run(input)
+    safeHTML := bluemonday.UGCPolicy().SanitizeBytes(output)
+    return safeHTML, nil
 }
+
 
 func saveHTML(filename string, data []byte) error {
 	return os.WriteFile(filename, data, 0644)
