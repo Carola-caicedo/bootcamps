@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
-	"path/filepath"
 
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/russross/blackfriday/v2"
@@ -30,13 +30,13 @@ func main() {
 	outflag := flag.String("out", "", "HTML filename")
 	flag.Parse()
 
-	if err := run(*inflag, *outflag); err != nil {
+	if err := run(*inflag, *outflag, os.Stdout); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v", err)
 		os.Exit(1)
 	}
 }
 
-func run(in, out string) error {
+func run(in, out string, writer io.Writer) error {
 	// Check obligatory flag
 	if in == "" {
 		return fmt.Errorf("the flag (-in) is obligatory")
@@ -56,23 +56,31 @@ func run(in, out string) error {
 	if out != "" {
 		filename = out + ".html"
 	} else {
-		base := filepath.Base(in)
-		ext := filepath.Ext(base)
-		name := base[:len(base)-len(ext)]
-		filename = name + ".html"
+		tempFile, err := os.CreateTemp(".", "md*.html")
+		if err != nil {
+			return fmt.Errorf("cannot created file temporary: %v", err)
+		}
+
+		tempFile.Close()
+		filename = tempFile.Name()
+
 	}
 
 	content := []byte(header + string(body) + footer)
 
-	return saveHTML(filename, content)
+	if err := saveHTML(filename, content); err != nil {
+		return err
+	}
+
+	fmt.Fprintln(writer, filename)
+	return nil
 }
 
 func parseContent(input []byte) ([]byte, error) {
-    output := blackfriday.Run(input)
-    safeHTML := bluemonday.UGCPolicy().SanitizeBytes(output)
-    return safeHTML, nil
+	output := blackfriday.Run(input)
+	safeHTML := bluemonday.UGCPolicy().SanitizeBytes(output)
+	return safeHTML, nil
 }
-
 
 func saveHTML(filename string, data []byte) error {
 	return os.WriteFile(filename, data, 0644)

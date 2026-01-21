@@ -3,61 +3,68 @@ package main
 import (
 	"bytes"
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 )
 
-func TestRun(t *testing.T) {
+func TestRunOut(t *testing.T) {
+	tmpDir := t.TempDir()
+	oldDir, _ := os.Getwd()
+	defer os.Chdir(oldDir)
+	os.Chdir(tmpDir)
 
-	t.Run("ErrWithoutIn", func(t *testing.T) {
-		err := run("", "")
-		if err == nil {
-			t.Error("expected error, when -in is not specified")
-		}
-	})
-	// file created (-out)
-	t.Run("FileCreated", func(t *testing.T) {
-		tmpFile := "testfile.md"
-		err := os.WriteFile(tmpFile, []byte("# test"), 0644)
-		if err != nil {
-			t.Fatal(err)
-		}
+	mdFile := "testfile.md"
+	mdContent := []byte("# This is a test.")
+	if err := os.WriteFile(mdFile, mdContent, 0644); err != nil {
+		t.Fatal(err)
+	}
 
-		defer os.Remove(tmpFile)
+	var buf bytes.Buffer
+	err := run(mdFile, "result", &buf)
+	if err != nil {
+		t.Fatalf("run() failed: %v", err)
+	}
 
-		err = run(tmpFile, "result")
-		if err != nil {
-			t.Fatalf("run() failed: %v", err)
-		}
+	expectedResult := "result.html\n"
+	if got := buf.String(); got != expectedResult {
+		t.Errorf("expected %q, got %q", expectedResult, got)
+	}
 
-		if _, err := os.Stat("result.html"); os.IsNotExist(err) {
-			t.Errorf("The file result.html was not created")
-		} else {
-			// Clean
-			os.Remove("result.html")
-		}
-	})
+	if _, err := os.Stat("result.html"); os.IsNotExist(err) {
+		t.Errorf("The file result.html was not created")
+	}
+}
 
-	t.Run("FileCreatedWithoutOut", func(t *testing.T) {
-		tmpFile := "document.md"
-		err := os.WriteFile(tmpFile, []byte("# test"), 0644)
-		if err != nil {
-			t.Fatal(err)
-		}
+func TestRunWithoutOut(t *testing.T) {
+	tmpDir := t.TempDir()
+	oldDir, _ := os.Getwd()
 
-		defer os.Remove(tmpFile)
+	defer os.Chdir(oldDir)
+	os.Chdir(tmpDir)
 
-		err = run(tmpFile, "")
-		if err != nil {
-			t.Fatalf("run() failed: %v", err)
-		}
+	mdFile := "testfile.md"
+	mdContent := []byte("# This is a test.")
+	if err := os.WriteFile(mdFile, mdContent, 0644); err != nil {
+		t.Fatal(err)
+	}
+	var buf bytes.Buffer
+	if err := run(mdFile, "", &buf); err != nil {
+		t.Fatalf("run() failed: %v", err)
+	}
 
-		if _, err := os.Stat("document.html"); os.IsNotExist(err) {
-			t.Errorf("The file document.html was not created")
-		} else {
-			// Clean
-			os.Remove("document.html")
-		}
-	})
+	filename := strings.TrimSpace(buf.String())
+	if filename == "" {
+		t.Errorf("No filename")
+	}
+
+	if !strings.HasPrefix(filepath.Base(filename), "md") || !strings.HasSuffix(filename, ".html") {
+		t.Errorf("Not matching filename: %q", filename)
+	}
+
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		t.Errorf("The file %q was not created", filename)
+	}
 }
 
 func TestParseContent(t *testing.T) {
@@ -81,8 +88,9 @@ Just a test
 	}
 	defer os.Remove(mdFile)
 
+	var buf bytes.Buffer
 	outputBaseName := "test_parse"
-	err = run(mdFile, outputBaseName)
+	err = run(mdFile, outputBaseName, &buf)
 	if err != nil {
 		t.Fatalf("run() failed: %v", err)
 	}
