@@ -14,6 +14,10 @@ func TestRunOut(t *testing.T) {
 	defer os.Chdir(oldDir)
 	os.Chdir(tmpDir)
 
+	if err := os.MkdirAll("md", 0755); err != nil {
+		t.Fatal(err)
+	}
+
 	mdFile := "testfile.md"
 	mdContent := []byte("# This is a test.")
 	if err := os.WriteFile(mdFile, mdContent, 0644); err != nil {
@@ -26,12 +30,12 @@ func TestRunOut(t *testing.T) {
 		t.Fatalf("run() failed: %v", err)
 	}
 
-	expectedResult := "result.html\n"
+	expectedResult := filepath.Join("md", "result.html\n")
 	if got := buf.String(); got != expectedResult {
 		t.Errorf("expected %q, got %q", expectedResult, got)
 	}
 
-	if _, err := os.Stat("result.html"); os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join("md", "result.html")); os.IsNotExist(err) {
 		t.Errorf("The file result.html was not created")
 	}
 }
@@ -42,6 +46,10 @@ func TestRunWithoutOut(t *testing.T) {
 
 	defer os.Chdir(oldDir)
 	os.Chdir(tmpDir)
+
+	if err := os.MkdirAll("md", 0755); err != nil {
+		t.Fatal(err)
+	}
 
 	mdFile := "testfile.md"
 	mdContent := []byte("# This is a test.")
@@ -58,6 +66,7 @@ func TestRunWithoutOut(t *testing.T) {
 		t.Errorf("No filename")
 	}
 
+	//For checking the filename: method CONTAINS
 	if !strings.HasPrefix(filepath.Base(filename), "md") || !strings.HasSuffix(filename, ".html") {
 		t.Errorf("Not matching filename: %q", filename)
 	}
@@ -68,6 +77,8 @@ func TestRunWithoutOut(t *testing.T) {
 }
 
 func TestParseContent(t *testing.T) {
+
+	goldenpath := filepath.Join("testdata", "test_golden.html")
 
 	mdContent := []byte(`# Test Markdown File
 
@@ -80,6 +91,15 @@ Just a test
 ## Quotes
 
 > Quotes in **bold** and _italic_ text`)
+
+	tmpDir := t.TempDir()
+	oldDir, _ := os.Getwd()
+	defer os.Chdir(oldDir)
+	os.Chdir(tmpDir)
+
+	if err := os.MkdirAll("md", 0755); err != nil {
+		t.Fatal(err)
+	}
 
 	mdFile := "test_parse.md"
 	err := os.WriteFile(mdFile, mdContent, 0644)
@@ -95,7 +115,7 @@ Just a test
 		t.Fatalf("run() failed: %v", err)
 	}
 
-	outputFile := outputBaseName + ".html"
+	outputFile := filepath.Join("md", outputBaseName+".html")
 	defer os.Remove(outputFile)
 
 	generatedHTML, err := os.ReadFile(outputFile)
@@ -103,7 +123,9 @@ Just a test
 		t.Fatalf("failed read generated file: %v", err)
 	}
 
-	goldenHTML, err := os.ReadFile("test_golden.html")
+	os.Chdir(oldDir)
+
+	goldenHTML, err := os.ReadFile(goldenpath)
 	if err != nil {
 		t.Fatalf("failed read golden file: %v", err)
 	}

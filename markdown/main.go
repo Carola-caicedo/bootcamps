@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/russross/blackfriday/v2"
@@ -52,11 +53,15 @@ func run(in, out string, writer io.Writer) error {
 		return err
 	}
 
+	if err := os.MkdirAll("md", 0755); err != nil {
+		return fmt.Errorf("cannot created directory: %v", err)
+	}
+
 	var filename string
 	if out != "" {
-		filename = out + ".html"
+		filename = filepath.Join("md", out+".html")
 	} else {
-		tempFile, err := os.CreateTemp(".", "md*.html")
+		tempFile, err := os.CreateTemp("md", "md*.html")
 		if err != nil {
 			return fmt.Errorf("cannot created file temporary: %v", err)
 		}
@@ -77,7 +82,7 @@ func run(in, out string, writer io.Writer) error {
 }
 
 func parseContent(input []byte) ([]byte, error) {
-	output := blackfriday.Run(input)
+	output := blackfriday.Run(input, blackfriday.WithExtensions(blackfriday.CommonExtensions))
 	safeHTML := bluemonday.UGCPolicy().SanitizeBytes(output)
 	return safeHTML, nil
 }
