@@ -48,6 +48,7 @@ func TestRunWithoutOut(t *testing.T) {
 	if err := os.WriteFile(mdFile, mdContent, 0644); err != nil {
 		t.Fatal(err)
 	}
+
 	var buf bytes.Buffer
 	if err := run(mdFile, "", &buf); err != nil {
 		t.Fatalf("run() failed: %v", err)
@@ -58,6 +59,7 @@ func TestRunWithoutOut(t *testing.T) {
 		t.Errorf("No filename")
 	}
 
+	//For checking the filename: method CONTAINS
 	if !strings.HasPrefix(filepath.Base(filename), "md") || !strings.HasSuffix(filename, ".html") {
 		t.Errorf("Not matching filename: %q", filename)
 	}
@@ -68,6 +70,8 @@ func TestRunWithoutOut(t *testing.T) {
 }
 
 func TestParseContent(t *testing.T) {
+
+	goldenpath := "test_golden.html"
 
 	mdContent := []byte(`# Test Markdown File
 
@@ -80,6 +84,11 @@ Just a test
 ## Quotes
 
 > Quotes in **bold** and _italic_ text`)
+
+	tmpDir := t.TempDir()
+	oldDir, _ := os.Getwd()
+	defer os.Chdir(oldDir)
+	os.Chdir(tmpDir)
 
 	mdFile := "test_parse.md"
 	err := os.WriteFile(mdFile, mdContent, 0644)
@@ -103,7 +112,9 @@ Just a test
 		t.Fatalf("failed read generated file: %v", err)
 	}
 
-	goldenHTML, err := os.ReadFile("test_golden.html")
+	os.Chdir(oldDir)
+
+	goldenHTML, err := os.ReadFile(goldenpath)
 	if err != nil {
 		t.Fatalf("failed read golden file: %v", err)
 	}

@@ -77,7 +77,7 @@ func run(in, out string, writer io.Writer) error {
 }
 
 func parseContent(input []byte) ([]byte, error) {
-	output := blackfriday.Run(input)
+	output := blackfriday.Run(input, blackfriday.WithExtensions(blackfriday.CommonExtensions))
 	safeHTML := bluemonday.UGCPolicy().SanitizeBytes(output)
 	return safeHTML, nil
 }
