@@ -6,9 +6,12 @@ import (
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+
 	if r.URL.Path == "/" {
-		http.NotFound(w, r)
+		errorReply(w, r, http.StatusNotFound, "404 page not found")
 		return
 	}
-	w.Write([]byte("Hello World"))
+
+	textReply(w, r, http.StatusOK, "Hello World")
 }
