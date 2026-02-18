@@ -22,63 +22,65 @@ func setupAPI(t *testing.T) (url string, cleaner func()) {
 	return url, cleaner
 }
 
-func TestRootHandler(t *testing.T) {
-
-	path := "/"
-	expectedCode := http.StatusNotFound
-	expectedContent := "404 page not found"
-
-	url, cleaner := setupAPI(t)
-	defer cleaner()
-
-	resp, err := http.Get(url + path)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	defer resp.Body.Close()
-
-	if resp.StatusCode != expectedCode {
-		t.Errorf("Expected %d , got %d", expectedCode, resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if !strings.Contains(string(body), expectedContent) {
-		t.Errorf("Expected %s, got %s", expectedContent, string(body))
-	}
-
+type testCase struct {
+	name            string
+	path            string
+	expectedCode    int
+	expectedContent string
 }
 
-func TestGetNotFound(t *testing.T) {
-	path := "/pathnotexist"
-	expectedCode := http.StatusOK
-	expectedContent := "Hello World"
+func TestGet(t *testing.T) {
+	resultCases := []testCase{
+		{
+			name:            "Root returns Error 404",
+			path:            "/",
+			expectedCode:    http.StatusNotFound,
+			expectedContent: "404 page not found",
+		},
+
+		{
+			name:            "Root returns 200 OK",
+			path:            "/anything",
+			expectedCode:    http.StatusOK,
+			expectedContent: "Hello World",
+		},
+	}
 
 	url, cleaner := setupAPI(t)
 	defer cleaner()
 
-	resp, err := http.Get(url + path)
-	if err != nil {
-		t.Fatal(err)
-	}
+	for _, tc := range resultCases {
+		t.Run(tc.name, func(t *testing.T) {
 
-	defer resp.Body.Close()
+			r, err := http.Get(url + tc.path)
+			if err != nil {
+				t.Fatal(err)
+			}
 
-	if resp.StatusCode != expectedCode {
-		t.Errorf("Expected %d, got %d", expectedCode, resp.StatusCode)
-	}
+			defer r.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
+			if r.StatusCode != tc.expectedCode {
+				t.Errorf("Expected %d , got %d", tc.expectedCode, r.StatusCode)
+			}
 
-	if !strings.Contains(string(body), expectedContent) {
-		t.Errorf("Expected %s, got %s", expectedContent, string(body))
+			ContentType := r.Header.Get("Content-Type")
+			switch ContentType {
+			case "text/plain; charset=utf-8":
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if !strings.Contains(string(body), tc.expectedContent) {
+					t.Errorf("Expected %s, got %s", tc.expectedContent, string(body))
+				}
+
+			default:
+				t.Fatalf("Unsupported Content-Type: %q", r.Header.Get("Content-Type"))
+
+			}
+
+		})
 	}
 
 }
