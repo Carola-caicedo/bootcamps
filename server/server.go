@@ -26,13 +26,14 @@ func errorReply(w http.ResponseWriter, _ *http.Request, status int, payload stri
 }
 
 func jsonReply(w http.ResponseWriter, _ *http.Request, status int, payload *todoResponse) {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 
 	data, err := json.Marshal(payload)
 	if err != nil {
 		errorReply(w, nil, http.StatusInternalServerError, "Error generated Response JSON")
 		return
-		
+
 	}
 
 	w.Write(data)
