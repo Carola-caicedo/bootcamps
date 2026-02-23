@@ -6,10 +6,12 @@ import (
 	"net/http"
 )
 
-func newMux() http.Handler {
+func newMux(datafile string) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", rootHandler)
+	mux.HandleFunc("/todo", getAllHandler(datafile))
+	mux.HandleFunc("/todo/", getAllHandler(datafile))
 
 	return mux
 }
