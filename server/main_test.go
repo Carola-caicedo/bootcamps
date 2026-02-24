@@ -11,7 +11,7 @@ import (
 func setupAPI(t *testing.T) (url string, cleaner func()) {
 	t.Helper()
 
-	server := httptest.NewServer(newMux())
+	server := httptest.NewServer(newMux("datafile.json"))
 
 	url = server.URL
 
