@@ -10,8 +10,8 @@ func newMux(datafile string) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", rootHandler)
-	mux.HandleFunc("/todo", getAllHandler(datafile))
-	mux.HandleFunc("/todo/", getAllHandler(datafile))
+	mux.HandleFunc("/todo", router(datafile))
+	mux.HandleFunc("/todo/", router(datafile))
 
 	return mux
 }
