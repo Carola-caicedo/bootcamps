@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Carola-caicedo/todo"
 )
@@ -85,6 +86,39 @@ func validateID(idStr string, list *todo.List) (int, error) {
 	return id, nil
 }
 
+func deleteHandler(w http.ResponseWriter, r *http.Request, list *todo.List, datafile string, id int) {
+
+	*list = append((*list)[:id], (*list)[id+1:]...)
+
+	err := list.Save(datafile)
+	if err != nil {
+		errorReply(w, r, http.StatusInternalServerError, "Error saving the list after delete")
+		return
+	}
+	textReply(w, r, http.StatusNoContent, "")
+}
+
+func patchHandler(w http.ResponseWriter, r *http.Request, list *todo.List, datafile string, id int) {
+
+	query := r.URL.Query()
+
+	if !query.Has("complete") {
+		errorReply(w, r, http.StatusBadRequest, "Invalid format JSON")
+		return
+	}
+
+	(*list)[id].Done = true
+	(*list)[id].CompletedAt = time.Now()
+
+	err := list.Save(datafile)
+	if err != nil {
+		errorReply(w, r, http.StatusInternalServerError, "Error saving task after patch")
+		return
+	}
+
+	textReply(w, r, http.StatusNoContent, "")
+}
+
 func router(datafile string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		list := todo.List{}
@@ -109,6 +143,10 @@ func router(datafile string) http.HandlerFunc {
 			switch r.Method {
 			case http.MethodGet:
 				getOneHandler(w, r, &list, id)
+			case http.MethodDelete:
+				deleteHandler(w, r, &list, datafile, id)
+			case http.MethodPatch:
+				patchHandler(w, r, &list, datafile, id)
 			default:
 				errorReply(w, r, http.StatusMethodNotAllowed, "Method not allowed")
 			}
