@@ -19,10 +19,10 @@ type todoResponseJSON struct {
 }
 
 type todoItem struct {
-	Task        string `json:"Task"`
-	Done        bool   `json:"Done"`
-	CreatedAt   string `json:"CreatedAt"`
-	CompletedAt string `json:"CompletedAt"`
+	Task        string `json:"task"`
+	Done        bool   `json:"done"`
+	CreatedAt   string `json:"created_at"`
+	CompletedAt string `json:"completed_at"`
 }
 
 func setupAPI(t *testing.T) (url string, cleaner func()) {
@@ -237,6 +237,146 @@ func TestAdd(t *testing.T) {
 		expectedTask := "Task 3"
 		if response.Results[0].Task != expectedTask {
 			t.Fatalf("Expected task %s, got %s", expectedTask, response.Results[0].Task)
+		}
+	})
+}
+
+func TestDelete(t *testing.T) {
+	url, cleaner := setupAPI(t)
+	defer cleaner()
+
+	t.Run("Delete", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodDelete, url+"/todo/0", nil)
+		if err != nil {
+			t.Fatalf("Error deleting task: %v", err)
+		}
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			t.Fatalf("Error deleting task: %v", err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusNoContent {
+			body, _ := io.ReadAll(resp.Body)
+			t.Fatalf("Expected status 204 No Content, got %d, body: %s", resp.StatusCode, string(body))
+		}
+	})
+
+	t.Run("CheckDelete", func(t *testing.T) {
+		resp, err := http.Get(url + "/todo")
+		if err != nil {
+			t.Fatalf("Error getting task: %v", err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			body, _ := io.ReadAll(resp.Body)
+			t.Fatalf("Expected status 200 ok, got %d, body: %s", resp.StatusCode, string(body))
+		}
+
+		contentType := resp.Header.Get("Content-Type")
+		if !strings.Contains(contentType, "application/json") {
+			t.Fatalf("Expected Content-Type application/json, got %s", contentType)
+		}
+
+		var response todoResponseJSON
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		if err != nil {
+			t.Fatalf("Error decoding JSON: %v", err)
+		}
+
+		expectedItems := 2
+		if response.TotalResults != expectedItems {
+			t.Fatalf("Expected %d items, got %d", expectedItems, response.TotalResults)
+		}
+
+		if len(response.Results) != expectedItems {
+			t.Fatalf("Expected %d items, got %d", expectedItems, len(response.Results))
+		}
+
+		if len(response.Results) > 0 {
+			expectedTask := "Task 1"
+			if response.Results[0].Task != expectedTask {
+				t.Fatalf("Expected task %s, got %s", expectedTask, response.Results[0].Task)
+			}
+		}
+	})
+}
+
+func TestComplete(t *testing.T) {
+	url, cleaner := setupAPI(t)
+	defer cleaner()
+
+	t.Run("Complete", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodPatch, url+"/todo/0?complete", nil)
+		if err != nil {
+			t.Fatalf("Error created task: %v", err)
+		}
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			t.Fatalf("Error executing patch: %v", err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusNoContent {
+			body, _ := io.ReadAll(resp.Body)
+			t.Fatalf("Expected status 204 No Content, got %d, body: %s", resp.StatusCode, string(body))
+		}
+	})
+
+	t.Run("CheckComplete", func(t *testing.T) {
+		resp, err := http.Get(url + "/todo")
+		if err != nil {
+			t.Fatalf("Error getting task: %v", err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			body, _ := io.ReadAll(resp.Body)
+			t.Fatalf("Expected status 200 ok, got %d, body: %s", resp.StatusCode, string(body))
+		}
+
+		contentType := resp.Header.Get("Content-Type")
+		if !strings.Contains(contentType, "application/json") {
+			t.Fatalf("Expected Content-Type application/json, got %s", contentType)
+		}
+
+		var response todoResponseJSON
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		if err != nil {
+			t.Fatalf("Error decoding JSON: %v", err)
+		}
+
+		if response.TotalResults != 3 {
+			t.Fatalf("Expected 3 items, got %d", response.TotalResults)
+		}
+
+		if len(response.Results) != 3 {
+			t.Fatalf("Expected 3 items, got %d", len(response.Results))
+		}
+
+		if len(response.Results) > 0 {
+			if !response.Results[0].Done {
+				t.Fatalf("Expected a single task Done=true, got %v", response.Results[0].Done)
+			}
+
+			if response.Results[0].CompletedAt == "0001-01-01T00:00:00Z" {
+				t.Fatalf("Expected a single task Completed, got zero")
+			}
+		}
+
+		for i := 1; i < len(response.Results); i++ {
+			if response.Results[i].Done {
+				t.Fatalf("Expected task %d done=false, got %v", i, response.Results[i].Done)
+			}
+
+			if response.Results[i].CompletedAt != "0001-01-01T00:00:00Z" {
+				t.Fatalf("Expected task %d Completed at zero, got %q", i, response.Results[i].CompletedAt)
+			}
 		}
 	})
 
